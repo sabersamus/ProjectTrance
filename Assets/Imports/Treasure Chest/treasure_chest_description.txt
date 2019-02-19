@@ -1,0 +1,19 @@
+
+This is a low-polygon model of a hand painted treasure chest.
+Available in three different formats.
+Blender .blend ,  FBX and OBJ.
+
+Software used: Blender 2.78c & Adobe Photoshop.
+
+Texture Maps: Diffuse and Normal 2048x2048 pixels
+UV Mapped - Yes ( Overlapping UVs )
+
+Faces Count  : 312
+Vertex Count  :
+ 313
+
+Renderer   : Blender Cycles
+
+.................................................................
+
+Animated Heaven - Designs of Eternity
