@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
 
 
     [SerializeField] public KeyCode runKey = KeyCode.LeftShift;
+
+
     private int baseHealth = 100;
     private int baseStamina = 100;
     private int baseMeleeStrength = 100;
@@ -80,15 +82,20 @@ public class Player : MonoBehaviour
         ui = GetComponent<PlayerUI>();
 
 
-        health = baseHealth;
-        //TODO: Change this v
-        maxStamina = baseStamina;
-        stamina = baseStamina;
-        meleeStrength = baseMeleeStrength;
-        water = baseWater;
-        food = baseFood;
 
-        health = 100;
+        //TODO:  Check if new player
+        //Maybe move this to a playerJoin event?
+        if (true/*new player*/)
+        {
+            health = baseHealth;
+            //TODO: Change this v
+            maxStamina = baseStamina;
+            stamina = baseStamina;
+            meleeStrength = baseMeleeStrength;
+            water = baseWater;
+            food = baseFood;
+            health = baseHealth;
+        }
 
 
     }
