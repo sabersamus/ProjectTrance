@@ -30,7 +30,7 @@ public class Inventory
     public int currentSize()
     {
         int count = 0;
-        for(int i = 0; i < items.Length; i++)
+        for (int i = 0; i < items.Length; i++)
         {
             if (items[i] == null)
             {
@@ -45,8 +45,8 @@ public class Inventory
 
     //I believe this method is finished
     public bool addItem(ItemStack _itemStack)
-    {   
-        if(maxSize < currentSize() + 1)
+    {
+        if (maxSize < currentSize() + 1)
         {
             Debug.Log("Inventory is full");
             return false;
@@ -59,7 +59,7 @@ public class Inventory
             int _firstPartialID = firstPartial(_itemStack);
             Debug.Log("We have a partial stack.... filling. Slot: " + _firstPartialID);
 
-            ItemStack _firstPartial = getItemInSlot(_firstPartialID);
+            ItemStack _firstPartial = itemInSlot(_firstPartialID);
 
             int _firstPartialSize = _firstPartial.stackSize;
             int _inputSize = _itemStack.stackSize;
@@ -112,7 +112,7 @@ public class Inventory
                         //Step 2.5: No next partial, lets look for an empty
                         int emptyId = firstEmpty();
 
-                        if(emptyId == -1)
+                        if (emptyId == -1)
                         {
                             //We shouldnt have gotten to this point, because we already checked
                             //if we have room. by doing this, we should have an empty slot.
@@ -132,7 +132,7 @@ public class Inventory
                 else
                 {
                     //We do have a next partial stack
-                    int _nextPartialSize = getItemInSlot(_nextPartialID).stackSize;
+                    int _nextPartialSize = itemInSlot(_nextPartialID).stackSize;
                     //We add the overflow to the stacksize of our partial
                     setItem(_nextPartialID, new ItemStack(_itemStack.gameItem, _nextPartialSize + _overFlow));
                     return true;
@@ -141,7 +141,7 @@ public class Inventory
         }
         else //If we do not have a partial stack
         {
-            
+
             //Step one see if we have an empty
 
             if (firstEmpty() == -1)
@@ -164,10 +164,97 @@ public class Inventory
 
     }
 
+    /// <summary>
+    /// Removes the ItemStack from the inventory.
+    /// </summary>
+    /// <param name="itemStack">The itemstack to be removed</param>
     public void removeItem(ItemStack itemStack)
     {
-        //TODO: Remove item from inventory
+        if (itemStack == null)
+        {
+            Debug.Log("Itemstack can not be null");
+            return;
+        }
+
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == itemStack)
+            {
+                items[i] = null;
+                break;
+            }
+        }
     }
+
+    /// <summary>
+    /// Removes <paramref name="amount"/> of <paramref name="itemType"/> from the 
+    /// inventory.
+    /// </summary>
+    /// <param name="itemType">The type of item to remove</param>
+    /// <param name="amount">The amount to remove</param>
+    public void remove(GameItem itemType, int amount)
+    {
+        if (itemType == null || amount <= 0)
+        {
+            Debug.Log("Illegal arguments");
+            return;
+        }
+
+
+
+    }
+
+    public void clear(int id)
+    {
+        setItem(id, null);
+    }
+
+    public void clear()
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            clear(i);
+        }
+    }
+
+    public bool contains(ItemStack itemStack)
+    {
+        if (itemStack == null) return false;
+        foreach (ItemStack _itemStack in items)
+        {
+            if (_itemStack.Equals(itemStack)) return true;
+        }
+        return false;
+    }
+
+    public bool contains(GameItem itemType, int amount)
+    {
+        if (itemType == null || amount <= 0) return false;
+        if (isEmpty()) return false;
+
+        int count = 0;
+
+        foreach(ItemStack _itemStack in items)
+        {
+            if (_itemStack.gameItem != itemType) continue;
+            count += _itemStack.stackSize;
+        }
+
+        if (count == 0) return false;
+
+        return count >= amount;
+    }
+
+    public bool contains(GameItem itemType)
+    {
+        return contains(itemType, -1);
+    }
+
+    public bool isEmpty()
+    {
+        return currentSize() == 0;
+    }
+    
 
     public int firstPartial(ItemStack itemStack)
     {
@@ -218,7 +305,7 @@ public class Inventory
         items[slot] = item;
     }
 
-    public int findFirstSlot(ItemStack item)
+    public int first(ItemStack item)
     {
         for (int i = 0; i < items.Length; i++)
         {
@@ -233,7 +320,21 @@ public class Inventory
         return -1;
     }
 
-    public ItemStack getItemInSlot(int key)
+    public int first(GameItem itemType)
+    {
+        for(int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == null)
+                continue;
+            if(items[i].gameItem == itemType)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public ItemStack itemInSlot(int key)
     {
         return items[key];
     }
