@@ -11,10 +11,9 @@ public class Harvest : MonoBehaviour
     public AudioSource auidoSource;
     public float respawnTime = 10f;
     public float startingHealth;
-    [SerializeField]public MaterialType matType;
+    [SerializeField] public GameItem matType;
     public float randomRangeMin;
     public float randomRangeMax;
-    public Resource resource;
 
     private Collider targetCollider;
     private MeshRenderer render;
@@ -37,7 +36,6 @@ public class Harvest : MonoBehaviour
     public void harvestMaterials()
     {
         harvestAmount = Random.Range(randomRangeMin, randomRangeMax);
-        resource = new Resource(matType);
         if (health - harvestAmount <= 0)
         {
             health = 0;
@@ -51,7 +49,7 @@ public class Harvest : MonoBehaviour
 
     IEnumerator Respawn()
     {
-        if(anim != null)
+        if (anim != null)
         {
             gameObject.GetComponent<Animator>().SetBool("chopped", true);
             yield return new WaitForSeconds(3f);
