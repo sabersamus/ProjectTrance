@@ -55,9 +55,9 @@ public class Inventory
         //if we have a partial stack
         if (firstPartial(_itemStack) != -1)
         {
-            Debug.Log("We have a partial stack.... filling");
             //first partial itemstack of the type 
             int _firstPartialID = firstPartial(_itemStack);
+            Debug.Log("We have a partial stack.... filling. Slot: " + _firstPartialID);
 
             ItemStack _firstPartial = getItemInSlot(_firstPartialID);
 
@@ -68,11 +68,12 @@ public class Inventory
 
             if (_firstPartialSize + _inputSize > _firstPartial.item.maxStackSize)
             {
-                _overFlow = _firstPartialSize + _inputSize - _firstPartial.item.maxStackSize;
+                Debug.Log((_firstPartialSize + _inputSize) - _firstPartial.item.maxStackSize);
+                _overFlow = (_firstPartialSize + _inputSize) - _firstPartial.item.maxStackSize;
             }
 
             //if there is no overflow
-            if (_overFlow != 0)
+            if (_overFlow == 0)
             {
                 Debug.Log("No overflow, finishing up");
                 ItemStack _fp = new ItemStack(_firstPartial.item, _firstPartialSize + _inputSize);
@@ -81,6 +82,7 @@ public class Inventory
             }
             else
             {
+                Debug.Log(_overFlow + " overflow");
                 Debug.Log("We have overflow... checking");
                 //If we DO have overflow
 
@@ -150,7 +152,7 @@ public class Inventory
             }
             else
             {
-                Debug.Log("Empty slot found, filling");
+                Debug.Log("Empty slot found, filling slot number: " + firstEmpty());
                 //We have found an empty slot
                 int firstEmptyId = firstEmpty();
                 //well just set the empty slot to be the itemstack
