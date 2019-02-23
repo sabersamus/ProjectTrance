@@ -66,17 +66,17 @@ public class Inventory
 
             int _overFlow = 0;
 
-            if (_firstPartialSize + _inputSize > _firstPartial.item.maxStackSize)
+            if (_firstPartialSize + _inputSize > _firstPartial.gameItem.maxStackSize)
             {
-                Debug.Log((_firstPartialSize + _inputSize) - _firstPartial.item.maxStackSize);
-                _overFlow = (_firstPartialSize + _inputSize) - _firstPartial.item.maxStackSize;
+                Debug.Log((_firstPartialSize + _inputSize) - _firstPartial.gameItem.maxStackSize);
+                _overFlow = (_firstPartialSize + _inputSize) - _firstPartial.gameItem.maxStackSize;
             }
 
             //if there is no overflow
             if (_overFlow == 0)
             {
                 Debug.Log("No overflow, finishing up");
-                ItemStack _fp = new ItemStack(_firstPartial.item, _firstPartialSize + _inputSize);
+                ItemStack _fp = new ItemStack(_firstPartial.gameItem, _firstPartialSize + _inputSize);
                 items[_firstPartialID] = _fp;
                 return true;
             }
@@ -93,7 +93,7 @@ public class Inventory
                  */
 
                 //Step 1
-                items[_firstPartialID] = new ItemStack(_firstPartial.item, _firstPartial.item.maxStackSize);
+                items[_firstPartialID] = new ItemStack(_firstPartial.gameItem, _firstPartial.gameItem.maxStackSize);
 
                 //Step 2
                 int _nextPartialID = firstPartial(_itemStack);
@@ -104,7 +104,7 @@ public class Inventory
                     if (currentSize() + 1 > maxSize)
                     {
                         Debug.Log("Inventory is full, overflow not kept");
-                        //Maybe throw exception?
+                        //TODO: throw item out
                         return false;
                     }
                     else
@@ -123,7 +123,7 @@ public class Inventory
                         {
                             //We found an empty slot, so we put the overflow in the empty slot 
                             //and finish up
-                            ItemStack toEmpty = new ItemStack(_itemStack.item, _overFlow);
+                            ItemStack toEmpty = new ItemStack(_itemStack.gameItem, _overFlow);
                             setItem(emptyId, toEmpty);
                             return true;
                         }
@@ -134,7 +134,7 @@ public class Inventory
                     //We do have a next partial stack
                     int _nextPartialSize = getItemInSlot(_nextPartialID).stackSize;
                     //We add the overflow to the stacksize of our partial
-                    setItem(_nextPartialID, new ItemStack(_itemStack.item, _nextPartialSize + _overFlow));
+                    setItem(_nextPartialID, new ItemStack(_itemStack.gameItem, _nextPartialSize + _overFlow));
                     return true;
                 }
             }
@@ -184,7 +184,7 @@ public class Inventory
 
             
             if(_itemStack != null && _itemStack.stackSize 
-                < _itemStack.item.maxStackSize && _itemStack.isSimilar(itemStack))
+                < _itemStack.gameItem.maxStackSize && _itemStack.isSimilar(itemStack))
             {
                 return i;
             }

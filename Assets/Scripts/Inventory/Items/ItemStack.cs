@@ -8,7 +8,7 @@ using System;
 [Serializable]
 public class ItemStack
 {
-    public GameItem item
+    public GameItem gameItem
     {
         get;
         set;
@@ -27,7 +27,7 @@ public class ItemStack
         {
             _stackSize = 1;
         }
-        item = _item;
+        gameItem = _item;
         stackSize = _stackSize;
     }
 
@@ -35,7 +35,7 @@ public class ItemStack
     {
         if (_item == null) return false;
         if (_item == this) return true;
-        if (this.item == _item.item) return true;
+        if (this.gameItem == _item.gameItem) return true;
         return false;
     }
     
