@@ -38,5 +38,15 @@ public class ItemStack
         if (this.gameItem == _item.gameItem) return true;
         return false;
     }
-    
+
+    public override bool Equals(object obj)
+    {
+        if (!(obj is ItemStack)) return false;
+
+        ItemStack _itemStack = (ItemStack)obj;
+
+        return _itemStack.gameItem == gameItem && _itemStack.stackSize == stackSize;
+
+    }
+
 }
