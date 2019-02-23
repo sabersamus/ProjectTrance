@@ -18,7 +18,14 @@ public class Inventory
     public GameObject slotsHolder;
     public PlayerUI playerUi;
 
-    public Slot[] slots;
+    public Inventory(int _maxSize)
+    {
+        maxSize = _maxSize;
+
+
+
+        items = new ItemStack[maxSize];
+    }
 
     public int currentSize()
     {
@@ -37,7 +44,7 @@ public class Inventory
 
 
     //I believe this method is finished
-    public bool addItem(ItemStack item)
+    public bool addItem(ItemStack _itemStack)
     {   
         if(maxSize < currentSize() + 1)
         {
@@ -46,30 +53,30 @@ public class Inventory
         }
 
         //if we have a partial stack
-        if (firstPartial(item) != -1)
+        if (firstPartial(_itemStack) != -1)
         {
             Debug.Log("We have a partial stack.... filling");
             //first partial itemstack of the type 
-            int _firstPartialID = firstPartial(item);
-            ItemStack _item = getItemInSlot(_firstPartialID);
+            int _firstPartialID = firstPartial(_itemStack);
 
-            int _size = _item.stackSize;
-            int _inputSize = item.stackSize;
+            ItemStack _firstPartial = getItemInSlot(_firstPartialID);
+
+            int _firstPartialSize = _firstPartial.stackSize;
+            int _inputSize = _itemStack.stackSize;
 
             int _overFlow = 0;
 
-            if (_size + _inputSize > _item.itemType.maxStackSize)
+            if (_firstPartialSize + _inputSize > _firstPartial.item.maxStackSize)
             {
-                _overFlow = _size + _inputSize - _item.itemType.maxStackSize;
+                _overFlow = _firstPartialSize + _inputSize - _firstPartial.item.maxStackSize;
             }
 
             //if there is no overflow
             if (_overFlow != 0)
             {
                 Debug.Log("No overflow, finishing up");
-                ItemStack _fp = new ItemStack(_item.itemType, _size + _inputSize);
+                ItemStack _fp = new ItemStack(_firstPartial.item, _firstPartialSize + _inputSize);
                 items[_firstPartialID] = _fp;
-                slots[_firstPartialID].item = _fp;
                 return true;
             }
             else
@@ -84,10 +91,10 @@ public class Inventory
                  */
 
                 //Step 1
-                items[_firstPartialID] = new ItemStack(_item.itemType, _item.itemType.maxStackSize);
+                items[_firstPartialID] = new ItemStack(_firstPartial.item, _firstPartial.item.maxStackSize);
 
                 //Step 2
-                int _nextPartialID = firstPartial(item);
+                int _nextPartialID = firstPartial(_itemStack);
 
                 //if there is no next partial stack
                 if (_nextPartialID == -1)
@@ -96,6 +103,7 @@ public class Inventory
                     {
                         Debug.Log("Inventory is full, overflow not kept");
                         //Maybe throw exception?
+                        return false;
                     }
                     else
                     {
@@ -104,6 +112,8 @@ public class Inventory
 
                         if(emptyId == -1)
                         {
+                            //We shouldnt have gotten to this point, because we already checked
+                            //if we have room. by doing this, we should have an empty slot.
                             Debug.Log("Your logic is flawed, this shouldnt be possible");
                             return false;
                         }
@@ -111,9 +121,8 @@ public class Inventory
                         {
                             //We found an empty slot, so we put the overflow in the empty slot 
                             //and finish up
-                            ItemStack toEmpty = new ItemStack(item.itemType, _overFlow);
+                            ItemStack toEmpty = new ItemStack(_itemStack.item, _overFlow);
                             setItem(emptyId, toEmpty);
-                            slots[emptyId].item = toEmpty;
                             return true;
                         }
                     }
@@ -123,7 +132,7 @@ public class Inventory
                     //We do have a next partial stack
                     int _nextPartialSize = getItemInSlot(_nextPartialID).stackSize;
                     //We add the overflow to the stacksize of our partial
-                    setItem(_nextPartialID, new ItemStack(_item.itemType, _nextPartialSize + _overFlow));
+                    setItem(_nextPartialID, new ItemStack(_itemStack.item, _nextPartialSize + _overFlow));
                     return true;
                 }
             }
@@ -143,37 +152,37 @@ public class Inventory
             {
                 Debug.Log("Empty slot found, filling");
                 //We have found an empty slot
-                int id = firstEmpty();
+                int firstEmptyId = firstEmpty();
                 //well just set the empty slot to be the itemstack
-                setItem(id, item);
-                slots[id].item = item;
-                Debug.Log("Setting slot " + id + " to " + item.itemType.matType);
-                playerUi.enableSlot(id, item, item.sprite);
+                setItem(firstEmptyId, _itemStack);
                 return true;
+
             }
         }
-        return false;
+
     }
 
-    public void removeItem(ItemStack item)
+    public void removeItem(ItemStack itemStack)
     {
         //TODO: Remove item from inventory
     }
 
-    public int firstPartial(ItemStack item)
+    public int firstPartial(ItemStack itemStack)
     {
         ItemStack[] inventory = items;
 
-        if (item == null)
+        if (itemStack == null)
         {
             return -1;
         }
 
         for(int i = 0; i< inventory.Length; i++)
         {
-            ItemStack _item = inventory[i];
-            if(_item != null && _item.stackSize 
-                < _item.itemType.maxStackSize && _item.isSimilar(item))
+            ItemStack _itemStack = inventory[i];
+
+            
+            if(_itemStack != null && _itemStack.stackSize 
+                < _itemStack.item.maxStackSize && _itemStack.isSimilar(itemStack))
             {
                 return i;
             }
@@ -205,11 +214,6 @@ public class Inventory
             return;
         }
         items[slot] = item;
-        Debug.Log(slots[slot]);
-        slots[slot].item = item;
-        slots[slot].sprite = item.sprite;
-        playerUi.enableSlot(slot, item, item.sprite);
-
     }
 
     public int findFirstSlot(ItemStack item)
