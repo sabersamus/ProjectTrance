@@ -74,7 +74,7 @@ public class Player : MonoBehaviour, IInventoryHolder
     {
         if (inventory == null)
         {
-            inventory = new Inventory(this, 32);
+            inventory = new PlayerInventory(this, 32);
         }
 
         handAnim = hand.GetComponent<Animator>();
