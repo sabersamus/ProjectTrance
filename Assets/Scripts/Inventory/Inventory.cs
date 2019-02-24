@@ -318,7 +318,7 @@ public class Inventory
                     {
                         //if we need to remove less than the stack has
 
-                        int leftOver = toRemove - _firstStackSize;
+                        int leftOver = _firstStackSize - amount;
                         setItem(_first, new ItemStack(itemType, leftOver));
                         toRemove = 0;
                         break;
