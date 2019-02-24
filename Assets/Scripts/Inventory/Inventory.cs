@@ -396,6 +396,20 @@ public class Inventory
         return contains;
     }
 
+    public bool containsAtleast(GameItem item, int amount)
+    {
+        if (isEmpty()) return false;
+        int currentAmount = 0;
+        foreach(ItemStack itemStack in items)
+        {
+            if (itemStack == null) continue;
+            if (itemStack.gameItem != item) continue;
+            currentAmount += itemStack.stackSize;
+        }
+
+        return currentAmount >= amount;
+    }
+
     public bool isEmpty()
     {
         if (items == null) return true;
