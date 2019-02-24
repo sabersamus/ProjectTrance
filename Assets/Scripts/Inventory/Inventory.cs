@@ -203,15 +203,134 @@ public class Inventory
     /// </summary>
     /// <param name="itemType">The type of item to remove</param>
     /// <param name="amount">The amount to remove</param>
-    public void remove(GameItem itemType, int amount)
+    public bool remove(GameItem itemType, int amount)
     {
         if (itemType == null || amount <= 0)
         {
             Debug.Log("Illegal arguments");
-            return;
+            return false;
         }
 
+        if (!contains(itemType))
+        {
+            Debug.Log("This inventory does not contain " + itemType.itemName);
+            return false;
+        }
 
+        int overFlow = 0;
+
+        if(amount > itemType.maxStackSize)
+        {
+            overFlow = amount - itemType.maxStackSize;
+        }
+
+        //We are removing more than a full stack
+        if(overFlow != 0)
+        {
+
+            //first we remove our first full stack.
+            //then, we set up a loop to remove any next stack
+            //until our overflow is 0
+
+            setItem(first(itemType), null);
+
+            while(overFlow < 0)
+            {
+                //step 1, get first stack.
+                //step 2, remove items from stack
+                int _first = first(itemType);
+                if (_first == -1) break;
+
+                int _firstStackSize = items[_first].stackSize;
+
+                //if the amount we need to remove is exactly how much our stack is
+                if (_firstStackSize == overFlow)
+                {
+                    setItem(_first, null);
+                    //this will break us from our loop
+                    overFlow = 0;
+                }
+                else
+                {
+                    //if the stack is not exactly the right amount
+                    //which will be the usual case.
+
+                    if (overFlow > _firstStackSize)
+                    {
+                        //if we need to remove more than the stack has
+
+                        //step 1, clear our current stack.
+                        //step 2, subtract from how much we need to remove
+                        //step 3, let our loop continue its work.
+                        overFlow -= _firstStackSize;
+                        setItem(_first, null);
+                    }
+                    else
+                    {
+                        //if we need to remove less than the stack has
+
+                        int leftOver = overFlow - _firstStackSize;
+                        setItem(_first, new ItemStack(itemType, leftOver));
+                        overFlow = 0;
+                        break;
+                    }
+                }
+            }
+            return true;
+
+        }
+        else
+        {
+            //we are removing less than or equal to a full stack
+            int toRemove = amount;
+            while(toRemove > 0)
+            {
+                //step 1, get first stack.
+                //step 2, remove items from stack
+                int _first = first(itemType);
+                if (_first == -1) break;
+
+                int _firstStackSize = items[_first].stackSize;
+
+                //if the amount we need to remove is exactly how much our stack is
+                if(_firstStackSize == toRemove)
+                {
+                    setItem(_first, null);
+                    //this will break us from our loop
+                    toRemove = 0;
+                }
+                else
+                {
+                    //if the stack is not exactly the right amount
+                    //which will be the usual case.
+
+                    if(toRemove > _firstStackSize)
+                    {
+                        //if we need to remove more than the stack has
+
+                        //step 1, clear our current stack.
+                        //step 2, subtract from how much we need to remove
+                        //step 3, let our loop continue its work.
+                        toRemove -= _firstStackSize;
+                        setItem(_first, null);
+                    }
+                    else
+                    {
+                        //if we need to remove less than the stack has
+
+                        int leftOver = toRemove - _firstStackSize;
+                        setItem(_first, new ItemStack(itemType, leftOver));
+                        toRemove = 0;
+                        break;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    public void removeAll(GameItem itemType)
+    {
 
     }
 
@@ -248,6 +367,8 @@ public class Inventory
         foreach(ItemStack _itemStack in items)
         {
             if (_itemStack.gameItem != itemType) continue;
+            if (_itemStack == null) continue;
+            if (_itemStack.gameItem == null || _itemStack.gameItem != itemType) continue;
             count += _itemStack.stackSize;
         }
 
