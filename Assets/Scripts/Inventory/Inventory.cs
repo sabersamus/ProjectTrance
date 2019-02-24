@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections.Specialized;
 using System;
 
+[Serializable]
 public class Inventory
 {
 
@@ -15,17 +16,29 @@ public class Inventory
     [SerializeField]
     public ItemStack[] items;
 
-    public GameObject slotsHolder;
-    public PlayerUI playerUi;
+    private IInventoryHolder inventoryHolder;
 
-    public Inventory(int _maxSize)
+    public IInventoryHolder GetInventoryHolder()
+    {
+        return inventoryHolder;
+    }
+
+    public Inventory(IInventoryHolder inventoryHolder, int _maxSize)
     {
         maxSize = _maxSize;
-
-
+        this.inventoryHolder = inventoryHolder;
 
         items = new ItemStack[maxSize];
     }
+
+    #region Events
+
+    public static event EventHandler<InventoryChangeEventArgs> InventoryChanged;
+
+    #endregion
+
+
+
 
     public int currentSize()
     {
@@ -50,6 +63,12 @@ public class Inventory
         {
             Debug.Log("Inventory is full");
             return false;
+        }
+
+
+        if(InventoryChanged != null)
+        {
+            InventoryChanged(this, new InventoryChangeEventArgs(this, InventoryChangeEventArgs.InventoryChangeType.ADD, _itemStack));
         }
 
         //if we have a partial stack
@@ -302,6 +321,8 @@ public class Inventory
             Debug.Log("Invalid slot key");
             return;
         }
+
+        Debug.Log(item == null);
         items[slot] = item;
     }
 

@@ -13,7 +13,6 @@ public class ItemManager : MonoBehaviour
         foreach (GameItem gameItem in Resources.FindObjectsOfTypeAll<GameItem>() as GameItem[])
         {
             gameItems.Add(gameItem.itemId, gameItem);
-            Debug.Log(gameItem);
         }
 
     }
