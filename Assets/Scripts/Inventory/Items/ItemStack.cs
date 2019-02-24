@@ -9,18 +9,9 @@ using System;
 public class ItemStack
 {
     [SerializeField]
-    public GameItem gameItem
-    {
-        get;
-        set;
-    }
-
+    public GameItem gameItem;
     [SerializeField]
-    public int stackSize
-    {
-        get;
-        set;
-    }
+    public int stackSize;
 
 
     public ItemStack(GameItem _item, int _stackSize)
@@ -41,6 +32,8 @@ public class ItemStack
         return false;
     }
 
+    #region overrides
+
     public override bool Equals(object obj)
     {
         if (!(obj is ItemStack)) return false;
@@ -51,4 +44,13 @@ public class ItemStack
 
     }
 
+    public override int GetHashCode()
+    {
+        var hashCode = -551140938;
+        hashCode = hashCode * -1521134295 + EqualityComparer<GameItem>.Default.GetHashCode(gameItem);
+        hashCode = hashCode * -1521134295 + stackSize.GetHashCode();
+        return hashCode;
+    }
+
+    #endregion
 }
