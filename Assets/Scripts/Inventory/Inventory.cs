@@ -258,7 +258,20 @@ public class Inventory
 
     public bool contains(GameItem itemType)
     {
-        return contains(itemType, -1);
+        if (itemType == null) return false;
+        bool contains = false;
+
+        foreach(ItemStack item in items)
+        {
+            if (item == null) continue;
+            if (item.gameItem == itemType)
+            {
+                contains = true;
+                break;
+            }
+        }
+
+        return contains;
     }
 
     public bool isEmpty()
