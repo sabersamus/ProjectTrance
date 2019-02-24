@@ -291,6 +291,28 @@ public class Inventory
         return -1;
     }
 
+    public int firstPartial(GameItem itemType)
+    {
+        if (itemType == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < items.Length; i++)
+        {
+            GameItem _itemType = items[i].gameItem;
+
+
+            if (_itemType != null && items[i].stackSize
+                < _itemType.maxStackSize && items[i].gameItem == itemType)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     public int firstEmpty()
     {
         ItemStack[] _items = items;
