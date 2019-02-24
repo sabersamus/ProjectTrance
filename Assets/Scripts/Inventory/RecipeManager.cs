@@ -11,7 +11,7 @@ public class RecipeManager : MonoBehaviour
         recipes = new Dictionary<CraftableItem, Recipe>();
         foreach (Recipe recipe in Resources.FindObjectsOfTypeAll<Recipe>() as Recipe[])
         {
-            recipes.Add(recipe.outputItem, recipe);
+            recipes.Add(recipe.output, recipe);
         }
     }
 

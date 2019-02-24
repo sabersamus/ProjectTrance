@@ -12,9 +12,12 @@ public class PlayerInventory : Inventory, ICraftingInventory
     public bool canCraft(CraftableItem output)
     {
         bool craftable = true;
-        foreach(GameItem gameItem in output.recipe.requiredItems)
+        List<ItemStack> requiredItems = output.recipe.requiredMaterials;
+        for(int i = 0; i < requiredItems.Count; i++)
         {
-            if(!contains(gameItem, output.recipe.itemStack.stackSize))
+            if (requiredItems[i] == null) continue;
+
+            if (!containsAtleast(requiredItems[i].gameItem, requiredItems[i].stackSize))
             {
                 craftable = false;
             }
@@ -24,18 +27,18 @@ public class PlayerInventory : Inventory, ICraftingInventory
 
     public bool craftItem(Recipe input)
     {
-        if (!canCraft(input.outputItem))
+        if (!canCraft(input.output))
         {
             return false;
-        }
+       }
 
-        ItemStack output = input.itemStack;
-        foreach(GameItem inputItem in input.input.Keys)
+        ItemStack output = new ItemStack(input.output, input.outputAmount);
+
+        foreach(ItemStack inputItem in input.requiredMaterials)
         {
-            remove(inputItem, input.input[inputItem]);
+            remove(inputItem.gameItem, inputItem.stackSize);
         }
         addItem(output);
-
         return true;
     }
 
