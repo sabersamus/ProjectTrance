@@ -305,6 +305,19 @@ public class Inventory
         return -1;
     }
 
+    public int firstFull(GameItem itemType)
+    {
+        ItemStack[] _items = items;
+        if (items.Length == 0) return -1;
+        for(int i = 0; i < _items.Length; i++)
+        {
+            if(_items[i].gameItem == itemType && _items[i].stackSize == itemType.maxStackSize)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     public void setItem(int slot, ItemStack item)
     {
