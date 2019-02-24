@@ -366,7 +366,6 @@ public class Inventory
 
         foreach(ItemStack _itemStack in items)
         {
-            if (_itemStack.gameItem != itemType) continue;
             if (_itemStack == null) continue;
             if (_itemStack.gameItem == null || _itemStack.gameItem != itemType) continue;
             count += _itemStack.stackSize;
