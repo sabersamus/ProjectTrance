@@ -65,10 +65,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "WinTerrain")
-        {
-            FindObjectOfType<WinListener>().triggerWin();
-        }
 
     }
 
