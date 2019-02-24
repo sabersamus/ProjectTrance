@@ -9,6 +9,4 @@ public class CraftableItem : GameItem
 {
     [SerializeField]
     public Recipe recipe;
-    [SerializeField]
-    public int outputAmount;
 }
