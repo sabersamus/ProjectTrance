@@ -7,8 +7,6 @@ public class Slot : MonoBehaviour
 {
 
     public ItemStack item;
-    [SerializeField]
-    public Sprite sprite;
 
     public int id;
 

@@ -16,18 +16,76 @@ public class PlayerUI : MonoBehaviour
     public Canvas hotbar;
     public Canvas equipment;
     public Canvas timeOfDay;
+    public Canvas backpack;
+    public Canvas container;
     public Text text;
     public Slider healthBar;
     public Slider staminaBar;
     public Slider foodBar;
     public Slider waterBar;
 
-    [HideInInspector]
     public Slot[] inventorySlots;
-    private static SpriteRenderer inventorySpriteRender;
 
     public GameObject inventorySlotsHolder;
-    
+
+    private void Awake()
+    {
+        Inventory.InventoryChanged += OnChangeUI;
+        Player.InteractContainer += OnPlayerOpenContainer;
+    }
+
+    private void OnDisable()
+    {
+        Inventory.InventoryChanged -= OnChangeUI;
+        Player.InteractContainer -= OnPlayerOpenContainer;
+    }
+
+    #region Events
+
+
+    private void OnChangeUI(object sender, InventoryChangeEventArgs eventArgs)
+    {
+        if (eventArgs.inventory != player.getInventory()) return;
+
+        Debug.Log("Its the players inventory");
+
+    }
+
+    private bool containerOpen = false;
+    private void OnPlayerOpenContainer(object sender, PlayerInteractContainerEventArgs eventArgs)
+    {
+        Inventory containerInventory = eventArgs.container.getInventory();
+
+        bool open = eventArgs.eventType == PlayerInteractContainerEventArgs.EventType.OPEN;
+        containerOpen = open;
+        Debug.Log("Was the inventory previously open? : " + inventoryOpen);
+        if (!inventoryOpen)
+        {
+            inventoryOpen = true;
+        }
+        else
+        {
+            inventoryOpen = open;
+        }
+
+        Debug.Log("Open type event: " + open);
+        Debug.Log("Is the inventory open now");
+
+        setUI(inventoryOpen, containerOpen);
+
+    }
+
+    #endregion
+
+
+    private void setUI(bool inventory, bool _container)
+    {
+        inventoryPanel.enabled = inventory;
+        statsUi.enabled = !inventory;
+        equipment.enabled = inventory;
+        backpack.enabled = inventory;
+        container.enabled = _container;
+    }
 
 
     //Private fields
@@ -44,9 +102,18 @@ public class PlayerUI : MonoBehaviour
     void Start()
     {
         //healthBar = GetComponent<Slider>();
+        inventorySlots = new Slot[(inventorySlotsHolder.transform.childCount)];
+
+        for(int i=0; i < player.getInventory().maxSize; i++)
+        {
+            inventorySlots[i] = inventorySlotsHolder.transform.GetChild(i).GetComponent<Slot>();
+        }
+
         inventoryOpen = false;
         inventoryPanel.enabled = false;
         equipment.enabled = false;
+        backpack.enabled = false;
+        container.enabled = false;
 
     }
 
@@ -60,13 +127,18 @@ public class PlayerUI : MonoBehaviour
 
         timeOfDay.GetComponentInChildren<Text>().text = System.DateTime.Now.ToString("hh:mm tt");
 
-        if (Input.GetButtonDown("I"))
+        if (Input.GetKeyDown(KeyCode.I))
         {
             inventoryOpen = !inventoryOpen;
             inventoryPanel.enabled = inventoryOpen;
             statsUi.enabled = !inventoryOpen;
-            hotbar.enabled = !inventoryOpen;
             equipment.enabled = inventoryOpen;
+            backpack.enabled = inventoryOpen;
+            if (containerOpen)
+            {
+                containerOpen = false;
+                container.enabled = false;
+            }
         }
 
         
@@ -81,21 +153,6 @@ public class PlayerUI : MonoBehaviour
     }
         
 
-    public void disableSlot(int slot)
-    {
-        inventorySpriteRender = inventorySlots[slot].GetComponent<SpriteRenderer>();
-        inventorySpriteRender.enabled = false;
-    }
-
-    public void enableSlot(int slot, ItemStack item, Sprite sprite)
-    {
-        SpriteRenderer spriteRenderer = inventorySlots[slot].GetComponent<SpriteRenderer>();
-        inventorySlots[slot].item = item;
-        spriteRenderer.sprite = sprite;
-        spriteRenderer.enabled = true;
-    }
-
-
     private float pickupAmount;
 
     public void triggerEvent(Harvest harvest)
@@ -109,7 +166,7 @@ public class PlayerUI : MonoBehaviour
         builder.Append(pickupAmount);
         //TODO: Remove field and replace with better calculation of how many items to display on pickup
         builder.Append(" ");
-        builder.Append(harvest.matType.ToString().ToLower());
+        builder.Append(harvest.matType.ToString());
         text.text = builder.ToString();
 
         StartCoroutine(clearPickupText());
