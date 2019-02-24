@@ -359,6 +359,7 @@ public class Inventory
 
     public bool contains(GameItem itemType, int amount)
     {
+        if (isEmpty()) return false;
         if (itemType == null || amount <= 0) return false;
         if (isEmpty()) return false;
 
@@ -378,6 +379,7 @@ public class Inventory
 
     public bool contains(GameItem itemType)
     {
+        if (isEmpty()) return false;
         if (itemType == null) return false;
         bool contains = false;
 
@@ -396,7 +398,26 @@ public class Inventory
 
     public bool isEmpty()
     {
-        return currentSize() == 0;
+        if (items == null) return true;
+        if (items.Length == 0)
+        {
+            return true;
+        }
+
+        //assume empty unless we find something
+        bool empty = true;
+        foreach (ItemStack itemStack in items)
+        {
+            if(itemStack != null)
+            {
+                empty = false;
+                //lets get out as soon as we find one item
+                break;
+            }
+        }
+
+
+        return empty;
     }
     
 
