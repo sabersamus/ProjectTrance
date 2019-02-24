@@ -8,12 +8,14 @@ using System;
 [Serializable]
 public class ItemStack
 {
+    [SerializeField]
     public GameItem gameItem
     {
         get;
         set;
     }
 
+    [SerializeField]
     public int stackSize
     {
         get;

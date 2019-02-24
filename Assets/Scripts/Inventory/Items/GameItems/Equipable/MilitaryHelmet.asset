@@ -9,11 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a840aa95562b1444826fe379b146aab, type: 3}
-  m_Name: Stone
+  m_Script: {fileID: 11500000, guid: fb12ab2f81f909942b6a73808e0d7f6b, type: 3}
+  m_Name: MilitaryHelmet
   m_EditorClassIdentifier: 
-  itemId: 2
-  itemName: Stone
-  itemDescription: '""'
-  isStackable: 1
-  maxStackSize: 1000
+  itemId: 200
+  itemName: Military Helmet
+  itemDescription: 
+  isStackable: 0
+  maxStackSize: 1
+  equipmentSlot: 0
+  ballisticDefenceBonus: 20

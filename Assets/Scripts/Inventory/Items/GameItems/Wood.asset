@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a840aa95562b1444826fe379b146aab, type: 3}
   m_Name: Wood
   m_EditorClassIdentifier: 
+  itemId: 1
   itemName: Wood
+  itemDescription: 
   isStackable: 1
   maxStackSize: 1000
