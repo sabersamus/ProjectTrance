@@ -61,7 +61,6 @@ public class Inventory
     {
         if (maxSize < currentSize() + 1)
         {
-            Debug.Log("Inventory is full");
             return false;
         }
 
@@ -76,7 +75,6 @@ public class Inventory
         {
             //first partial itemstack of the type 
             int _firstPartialID = firstPartial(_itemStack);
-            Debug.Log("We have a partial stack.... filling. Slot: " + _firstPartialID);
 
             ItemStack _firstPartial = itemInSlot(_firstPartialID);
 
@@ -87,22 +85,18 @@ public class Inventory
 
             if (_firstPartialSize + _inputSize > _firstPartial.gameItem.maxStackSize)
             {
-                Debug.Log((_firstPartialSize + _inputSize) - _firstPartial.gameItem.maxStackSize);
                 _overFlow = (_firstPartialSize + _inputSize) - _firstPartial.gameItem.maxStackSize;
             }
 
             //if there is no overflow
             if (_overFlow == 0)
             {
-                Debug.Log("No overflow, finishing up");
                 ItemStack _fp = new ItemStack(_firstPartial.gameItem, _firstPartialSize + _inputSize);
                 items[_firstPartialID] = _fp;
                 return true;
             }
             else
             {
-                Debug.Log(_overFlow + " overflow");
-                Debug.Log("We have overflow... checking");
                 //If we DO have overflow
 
                 /*
@@ -166,12 +160,10 @@ public class Inventory
             if (firstEmpty() == -1)
             {
                 //We have no empty
-                Debug.Log("Inventory full, no room for item");
                 return false;
             }
             else
             {
-                Debug.Log("Empty slot found, filling slot number: " + firstEmpty());
                 //We have found an empty slot
                 int firstEmptyId = firstEmpty();
                 //well just set the empty slot to be the itemstack
@@ -321,8 +313,6 @@ public class Inventory
             Debug.Log("Invalid slot key");
             return;
         }
-
-        Debug.Log(item == null);
         items[slot] = item;
     }
 

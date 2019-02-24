@@ -32,7 +32,6 @@ public class PlayerInventory : Inventory, ICraftingInventory
         ItemStack output = input.itemStack;
         foreach(GameItem inputItem in input.input.Keys)
         {
-            Debug.Log("Removing " + input.input[inputItem] + " of " + inputItem.itemName);
             remove(inputItem, input.input[inputItem]);
         }
         addItem(output);

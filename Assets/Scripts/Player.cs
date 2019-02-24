@@ -186,8 +186,6 @@ public class Player : MonoBehaviour, IInventoryHolder
                 {
                     Harvest harvest = hit.collider.GetComponent<Harvest>();
                     harvest.harvestMaterials();
-                    Debug.Log(ui == null);
-                    Debug.Log(harvest == null);
                     ui.triggerEvent(harvest);
                     inventory.addItem(new ItemStack(harvest.matType, (int)harvest.harvestAmount));
                     _audio = harvest.auidoSource;
