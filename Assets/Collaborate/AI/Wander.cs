@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 
 /// <summary>
-/// wanderers around a point
+/// wanderers around 
 /// </summary>
 public class Wander : MonoBehaviour
 {
@@ -56,12 +56,6 @@ public class Wander : MonoBehaviour
         
         if (NavMesh.SamplePosition(transform.position + (Random.insideUnitSphere * radius), out hit, radius, 1 << NavMesh.GetAreaFromName("Walkable")))            
         {
-
-           
-
-            
-
-           
             return hit.position;
         }       
 
