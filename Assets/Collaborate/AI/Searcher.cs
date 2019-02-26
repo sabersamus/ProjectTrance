@@ -73,13 +73,15 @@ public class Searcher : MonoBehaviour
     /// <summary>
     /// the list of targets the searcher will search for
     /// </summary>
-    [SerializeField, Header("Targets"), Tooltip("the list of targets the searcher will search for")]
+    [SerializeField, Tooltip("the list of targets the searcher will search for")]
     List<GameObject> targets;
+
+    [Header("Seach Settings")]
 
     /// <summary>
     /// "the distance the boxcast searches"
     /// </summary>
-    [SerializeField, Header("Seach Settings"), Tooltip("the distance the boxcast searches")]
+    [SerializeField, Tooltip("the distance the boxcast searches")]
     float lookdistance = 15f;
 
     /// <summary>
@@ -154,9 +156,7 @@ public class Searcher : MonoBehaviour
             //what ever move on
             agent.SetDestination(GetRandomLocation());
         }
-
-
-
+               
         // this sections needs optimized with a bunch of "inside" fields and outside gameobject changes like useing interfaces or scripts in potential target objects
         // i use "Linq" to filter Root game objects from the active scene and to filter the targets.
         if (!has_target)
@@ -406,11 +406,26 @@ public class Searcher : MonoBehaviour
     void SampleSurroundings(Action<RaycastHit> HitAction)
     {
         RaycastHit hit;
-        Debug.DrawRay(transform.position, transform.forward);
+
+
+        Debug.DrawRay(transform.position, transform.forward * 10f,Color.red,2f,false);
+        
+        //the actual search for a target. Hmmmmmmmmmmmm where are they? .... know one nose
         if (Physics.BoxCast(transform.position, new Vector3(5f, 5f, 5f), transform.forward, out hit, transform.rotation, lookdistance))
         {
+
             HitAction(hit);
         }
+    }
+
+
+    /// <summary>
+    /// adds a terget to the list
+    /// </summary>
+    /// <param name="target_object">the game object you wish to be a target of the searcher</param>
+    public void AddTarget(GameObject target_object)
+    {
+        targets.Add(target_object);
     }
 
 
@@ -421,7 +436,14 @@ public class Searcher : MonoBehaviour
 /// </summary>
 public class SeacherEventArgs
 {
+    /// <summary>
+    /// the object we were looking for
+    /// </summary>
     public readonly GameObject go;
+    /// <summary>
+    /// Creataes a SearcherEventArgs
+    /// </summary>
+    /// <param name="_go">the GameObject we found</param>
     public SeacherEventArgs(GameObject _go)
     {
         go = _go;
