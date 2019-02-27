@@ -65,10 +65,10 @@ public enum SearchTargetType
 /// <summary>
 /// searches the navmesh for the target
 /// </summary>
-[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(NavMeshAgent),typeof(Collider))]
 public class Searcher : MonoBehaviour
 {
-    
+
 
     /// <summary>
     /// the list of targets the searcher will search for
@@ -118,7 +118,8 @@ public class Searcher : MonoBehaviour
     NavMeshAgent agent;
     GameObject target;
     bool has_target = false;
-    
+
+
     #endregion
 
 
@@ -128,7 +129,7 @@ public class Searcher : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
 
-        targets = new List<GameObject>();
+        if(targets == null)targets = new List<GameObject>();
 
 
         agent.SetDestination(GetRandomLocation());
@@ -156,227 +157,10 @@ public class Searcher : MonoBehaviour
             //what ever move on
             agent.SetDestination(GetRandomLocation());
         }
-               
+
         // this sections needs optimized with a bunch of "inside" fields and outside gameobject changes like useing interfaces or scripts in potential target objects
         // i use "Linq" to filter Root game objects from the active scene and to filter the targets.
-        if (!has_target)
-        {
 
-            //find the target based on the search style and target type
-            switch (search_style)
-            {
-                case SearchStyle.Any:
-
-                    switch (search_target_type)
-                    {
-                        case SearchTargetType.Object:
-
-
-                            SampleSurroundings(((hit) =>
-                            {
-                                if (targets.Contains(hit.transform.gameObject))
-                                {
-                                    agent.SetDestination(hit.transform.position);
-                                    target = hit.transform.gameObject;
-                                    has_target = true;
-
-
-                                }
-                            }));
-
-
-                            break;
-                        case SearchTargetType.Type:
-
-                            SampleSurroundings(((hit) =>
-                            {
-                                if (targets.Select(a => a.name).Where(b => b == hit.transform.gameObject.name).Count() > 0)
-                                {
-                                    agent.SetDestination(hit.transform.position);
-                                    target = hit.transform.gameObject;
-                                    has_target = true;
-
-                                }
-                            }));
-
-                            break;
-                    }
-
-                    break;
-                case SearchStyle.Closest:
-
-                    switch (search_target_type)
-                    {
-                        case SearchTargetType.Object:
-                            {
-                                //you will have to remove the game object from targets when it reaches it or it will never move on.
-                                GameObject[] close_objects = targets.OrderBy(a => Vector3.Distance(transform.position, a.transform.position)).ToArray();
-
-                                if (close_objects.Length > 0)
-                                {
-                                    SampleSurroundings((hit) =>
-                                    {
-
-                                        agent.SetDestination(hit.transform.position);
-                                        target = hit.transform.gameObject;
-                                        has_target = true;
-
-                                    });
-
-                                }
-
-                                break;
-                            }
-                        case SearchTargetType.Type:
-                            {
-
-                                //must remove game object from game for this to move on or all targets with the same name
-                                GameObject[] close_objects = SceneManager.GetActiveScene().GetRootGameObjects().Where(a => targets.Select(b => b.name).Contains(a.name)).OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
-
-                                if (close_objects.Length > 0)
-                                {
-                                    SampleSurroundings((hit) =>
-                                    {
-                                        agent.SetDestination(hit.transform.position);
-                                        target = hit.transform.gameObject;
-                                        has_target = true;
-
-                                    });
-                                }
-
-                                break;
-                            }
-                    }
-
-                    break;
-                case SearchStyle.Farthest:
-
-                    switch (search_target_type)
-                    {
-                        case SearchTargetType.Object:
-                            {
-                                //you will have to remove the game object from targets when it reaches it or it will never move on.
-                                GameObject[] close_objects = targets.OrderByDescending(a => Vector3.Distance(transform.position, a.transform.position)).ToArray();
-
-                                if (close_objects.Length > 0)
-                                {
-                                    SampleSurroundings((hit) =>
-                                    {
-
-                                        agent.SetDestination(hit.transform.position);
-                                        target = hit.transform.gameObject;
-                                        has_target = true;
-
-                                    });
-                                }
-
-                                break;
-                            }
-                        case SearchTargetType.Type:
-                            {
-
-                                //must remove game object from game for this to move on or all targets with the same name
-                                GameObject[] close_objects = SceneManager.GetActiveScene().GetRootGameObjects().Where(a => targets.Select(b => b.name).Contains(a.name)).OrderByDescending(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
-
-                                if (close_objects.Length > 0)
-                                {
-                                    SampleSurroundings((hit) =>
-                                    {
-
-                                        agent.SetDestination(hit.transform.position);
-                                        target = hit.transform.gameObject;
-                                        has_target = true;
-
-                                    });
-                                }
-
-                                break;
-                            }
-                    }
-
-                    break;
-                case SearchStyle.IndexFirst:
-
-                    switch (search_target_type)
-                    {
-                        case SearchTargetType.Object:
-                            {
-
-                                SampleSurroundings((hit) =>
-                                {
-                                    if (hit.transform.gameObject == targets[0])
-                                    {
-                                        agent.SetDestination(hit.transform.position);
-                                        target = hit.transform.gameObject;
-                                        has_target = true;
-
-                                    }
-                                });
-
-
-                                break;
-                            }
-                        case SearchTargetType.Type:
-
-
-                            GameObject[] similiar_objects = SceneManager.GetActiveScene().GetRootGameObjects().Where(a => a.name == targets[0].name).ToArray();
-                            SampleSurroundings((hit) =>
-                            {
-                                if (similiar_objects.Length > 0)
-                                {
-                                    agent.SetDestination(similiar_objects[0].transform.position);
-                                    target = hit.transform.gameObject;
-                                    has_target = true;
-
-                                }
-                            });
-                            break;
-                    }
-
-                    break;
-                case SearchStyle.IndexLast:
-
-                    switch (search_target_type)
-                    {
-                        case SearchTargetType.Object:
-                            {
-
-                                SampleSurroundings((hit) =>
-                                {
-                                    if (hit.transform.gameObject == targets[targets.Count - 1])
-                                    {
-                                        agent.SetDestination(hit.transform.position);
-                                        target = hit.transform.gameObject;
-                                        has_target = true;
-
-                                    }
-                                });
-
-
-                                break;
-                            }
-                        case SearchTargetType.Type:
-
-
-                            GameObject[] similiar_objects = SceneManager.GetActiveScene().GetRootGameObjects().Where(a => a.name == targets[targets.Count - 1].name).ToArray();
-
-                            SampleSurroundings((hit) =>
-                            {
-                                if (similiar_objects.Length > 0)
-                                {
-                                    agent.SetDestination(similiar_objects[targets.Count - 1].transform.position);
-                                    target = hit.transform.gameObject;
-                                    has_target = true;
-
-                                }
-                            });
-
-                            break;
-                    }
-
-                    break;
-            }
-        }
     }
 
     /// <summary>
@@ -399,24 +183,7 @@ public class Searcher : MonoBehaviour
 
     }
 
-    /// <summary>
-    /// uses a box cast to look for the target item
-    /// </summary>
-    /// <param name="HitAction">us ethis to react to finding what e are looking for</param>
-    void SampleSurroundings(Action<RaycastHit> HitAction)
-    {
-        RaycastHit hit;
 
-
-        Debug.DrawRay(transform.position, transform.forward * 10f,Color.red,2f,false);
-        
-        //the actual search for a target. Hmmmmmmmmmmmm where are they? .... know one nose
-        if (Physics.BoxCast(transform.position, new Vector3(5f, 5f, 5f), transform.forward, out hit, transform.rotation, lookdistance))
-        {
-
-            HitAction(hit);
-        }
-    }
 
 
     /// <summary>
@@ -426,6 +193,217 @@ public class Searcher : MonoBehaviour
     public void AddTarget(GameObject target_object)
     {
         targets.Add(target_object);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!has_target)
+        {
+
+            //find the target based on the search style and target type
+            switch (search_style)
+            {
+                case SearchStyle.Any:
+
+                    switch (search_target_type)
+                    {
+                        case SearchTargetType.Object:
+
+
+                            
+                            if (targets.Contains(other.transform.gameObject))
+                            {
+                                agent.SetDestination(other.transform.position);
+                                target = other.transform.gameObject;
+                                has_target = true;
+
+
+                            }
+
+
+
+                            break;
+                        case SearchTargetType.Type:
+
+                            
+                            if (targets.Where(b =>  b.name.Equals(other.transform.gameObject.name); ).Count() > 0)
+                            {
+                                
+                                agent.SetDestination(other.transform.position);
+                                target = other.transform.gameObject;
+                                has_target = true;
+
+                            }
+
+
+                            break;
+                    }
+
+                    break;
+                case SearchStyle.Closest:
+
+                    switch (search_target_type)
+                    {
+                        case SearchTargetType.Object:
+                            {
+                                //you will have to remove the game object from targets when it reaches it or it will never move on.
+                                GameObject[] close_objects = targets.OrderBy(a => Vector3.Distance(transform.position, a.transform.position)).ToArray();
+
+                                if (close_objects.Length > 0)
+                                {
+
+
+                                    agent.SetDestination(other.transform.position);
+                                    target = other.transform.gameObject;
+                                    has_target = true;
+
+
+
+                                }
+
+                                break;
+                            }
+                        case SearchTargetType.Type:
+                            {
+
+                                //must remove game object from game for this to move on or all targets with the same name
+                                GameObject[] close_objects = SceneManager.GetActiveScene().GetRootGameObjects().Where(a => targets.Select(b => b.name).Contains(a.name)).OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
+
+                                if (close_objects.Length > 0)
+                                {
+
+                                    agent.SetDestination(other.transform.position);
+                                    target = other.transform.gameObject;
+                                    has_target = true;
+
+
+                                }
+
+                                break;
+                            }
+                    }
+
+                    break;
+                case SearchStyle.Farthest:
+
+                    switch (search_target_type)
+                    {
+                        case SearchTargetType.Object:
+                            {
+                                //you will have to remove the game object from targets when it reaches it or it will never move on.
+                                GameObject[] close_objects = targets.OrderByDescending(a => Vector3.Distance(transform.position, a.transform.position)).ToArray();
+
+                                if (close_objects.Length > 0)
+                                {
+
+                                    agent.SetDestination(other.transform.position);
+                                    target = other.transform.gameObject;
+                                    has_target = true;
+
+
+                                }
+
+                                break;
+                            }
+                        case SearchTargetType.Type:
+                            {
+
+                                //must remove game object from game for this to move on or all targets with the same name
+                                GameObject[] close_objects = SceneManager.GetActiveScene().GetRootGameObjects().Where(a => targets.Select(b => b.name).Contains(a.name)).OrderByDescending(c => Vector3.Distance(transform.position, c.transform.position)).ToArray();
+
+                                if (close_objects.Length > 0)
+                                {
+
+
+                                    agent.SetDestination(other.transform.position);
+                                    target = other.transform.gameObject;
+                                    has_target = true;
+
+
+                                }
+
+                                break;
+                            }
+                    }
+
+                    break;
+                case SearchStyle.IndexFirst:
+
+                    switch (search_target_type)
+                    {
+                        case SearchTargetType.Object:
+                            {
+
+
+                                if (other.transform.gameObject == targets[0])
+                                {
+                                    agent.SetDestination(other.transform.position);
+                                    target = other.transform.gameObject;
+                                    has_target = true;
+
+                                }
+
+
+
+                                break;
+                            }
+                        case SearchTargetType.Type:
+
+
+                            GameObject[] similiar_objects = SceneManager.GetActiveScene().GetRootGameObjects().Where(a => a.name == targets[0].name).ToArray();
+
+                            if (similiar_objects.Length > 0)
+                            {
+                                agent.SetDestination(similiar_objects[0].transform.position);
+                                target = other.transform.gameObject;
+                                has_target = true;
+
+                            }
+
+                            break;
+                    }
+
+                    break;
+                case SearchStyle.IndexLast:
+
+                    switch (search_target_type)
+                    {
+                        case SearchTargetType.Object:
+                            {
+
+
+                                if (other.transform.gameObject == targets[targets.Count - 1])
+                                {
+                                    agent.SetDestination(other.transform.position);
+                                    target = other.transform.gameObject;
+                                    has_target = true;
+
+                                }
+
+
+
+                                break;
+                            }
+                        case SearchTargetType.Type:
+
+
+                            GameObject[] similiar_objects = SceneManager.GetActiveScene().GetRootGameObjects().Where(a => a.name == targets[targets.Count - 1].name).ToArray();
+
+
+                            if (similiar_objects.Length > 0)
+                            {
+                                agent.SetDestination(similiar_objects[targets.Count - 1].transform.position);
+                                target = other.transform.gameObject;
+                                has_target = true;
+
+                            }
+
+                            break;
+                    }
+
+                    break;
+            }
+        }
     }
 
 
@@ -450,4 +428,7 @@ public class SeacherEventArgs
 
 
     }
+
+   
+
 }
