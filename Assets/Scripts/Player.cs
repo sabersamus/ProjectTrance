@@ -56,6 +56,12 @@ public class Player : MonoBehaviour, IInventoryHolder
 
     public bool canSprint;
 
+    public bool isInMenu
+    {
+        get;
+        set;
+    }
+
     #region Events
 
     public static event EventHandler<PlayerInteractContainerEventArgs> InteractContainer;
@@ -68,7 +74,7 @@ public class Player : MonoBehaviour, IInventoryHolder
     {
         if (inventory == null)
         {
-            inventory = new Inventory(this, 32);
+            inventory = new PlayerInventory(this, 32);
         }
 
         handAnim = hand.GetComponent<Animator>();
@@ -93,8 +99,6 @@ public class Player : MonoBehaviour, IInventoryHolder
 
     }
 
-    private bool containerOpen = false;
-
     void checkInput()
     {
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
@@ -106,21 +110,17 @@ public class Player : MonoBehaviour, IInventoryHolder
                 if (Input.GetKeyDown(KeyCode.E))
                 {
                     Container container = hit.collider.GetComponent<Container>();
-                    Debug.Log(containerOpen);
-                    Debug.Log("We are announcing the event");
-                    if (!containerOpen)
+                    if (!isInMenu)
                     {
                         InteractContainer(this, new PlayerInteractContainerEventArgs(this, container, OPEN));
-                        containerOpen = true;
+                        isInMenu = true;
                     }
                     else
                     {
                         InteractContainer(this, new PlayerInteractContainerEventArgs(this, container, CLOSE));
-                        containerOpen = false;
+                        isInMenu = false;
                     }
-                    
                 }
-
             }
         }
     }
@@ -134,30 +134,6 @@ public class Player : MonoBehaviour, IInventoryHolder
     void Update()
     {
         interact();
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            if(inventory.items.Length == 0)
-            {
-                Debug.Log("Inventory empty");
-            }
-            else
-            {
-                foreach (ItemStack itemStack in inventory.items)
-                {
-                    if (itemStack == null) continue;
-                    Debug.Log(itemStack.gameItem.itemName + " " + itemStack.stackSize);
-                }
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            GameItem gameItem = ItemManager.getGameItemById(2);
-            //Debug.Log(gameItem == null);
-            //Debug.Log(gameItem.itemName + " " + gameItem.maxStackSize + " " + gameItem.isStackable);
-           inventory.addItem(new ItemStack(gameItem, 350));
-        }
-
 
         if (stamina == 0)
         {
@@ -208,12 +184,8 @@ public class Player : MonoBehaviour, IInventoryHolder
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-
-
                     Harvest harvest = hit.collider.GetComponent<Harvest>();
                     harvest.harvestMaterials();
-                    Debug.Log(ui == null);
-                    Debug.Log(harvest == null);
                     ui.triggerEvent(harvest);
                     inventory.addItem(new ItemStack(harvest.matType, (int)harvest.harvestAmount));
                     _audio = harvest.auidoSource;
