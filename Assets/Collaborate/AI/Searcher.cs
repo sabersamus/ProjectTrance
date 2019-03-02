@@ -226,7 +226,7 @@ public class Searcher : MonoBehaviour
                         case SearchTargetType.Type:
 
                             
-                            if (targets.Where(b =>  b.name.Equals(other.transform.gameObject.name); ).Count() > 0)
+                            if (targets.Where(b =>  b.name.Equals(other.transform.gameObject.name)).Count() > 0)
                             {
                                 
                                 agent.SetDestination(other.transform.position);
