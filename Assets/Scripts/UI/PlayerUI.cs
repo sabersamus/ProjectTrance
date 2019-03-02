@@ -47,49 +47,42 @@ public class PlayerUI : MonoBehaviour
     {
         if (eventArgs.inventory != player.getInventory()) return;
 
-        Debug.Log("Its the players inventory");
-
     }
 
-    private bool containerOpen = false;
     private void OnPlayerOpenContainer(object sender, PlayerInteractContainerEventArgs eventArgs)
     {
         Inventory containerInventory = eventArgs.container.getInventory();
 
         bool open = eventArgs.eventType == PlayerInteractContainerEventArgs.EventType.OPEN;
-        containerOpen = open;
-        Debug.Log("Was the inventory previously open? : " + inventoryOpen);
-        if (!inventoryOpen)
+        if (open)
         {
-            inventoryOpen = true;
+            setUI(true, true);
         }
         else
         {
-            inventoryOpen = open;
+            setUI(false, false);
         }
-
-        Debug.Log("Open type event: " + open);
-        Debug.Log("Is the inventory open now");
-
-        setUI(inventoryOpen, containerOpen);
-
     }
 
     #endregion
 
 
-    private void setUI(bool inventory, bool _container)
+    private void setUI(bool a, bool b)
     {
-        inventoryPanel.enabled = inventory;
-        statsUi.enabled = !inventory;
-        equipment.enabled = inventory;
-        backpack.enabled = inventory;
-        container.enabled = _container;
+        inventoryPanel.enabled = a;
+        inventoryOpen = a;
+        statsUi.enabled = !a;
+        equipment.enabled = a;
+        backpack.enabled = a;
+        container.enabled = b;
+        containerOpen = b;
+        player.isInMenu = a || b;
     }
 
 
     //Private fields
     private bool inventoryOpen;
+    private bool containerOpen;
 
     public static int getHotbarSize()
     {
@@ -117,6 +110,7 @@ public class PlayerUI : MonoBehaviour
 
     }
 
+
     // Update is called once per frame
     void Update()
     {
@@ -129,20 +123,15 @@ public class PlayerUI : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            inventoryOpen = !inventoryOpen;
-            inventoryPanel.enabled = inventoryOpen;
-            statsUi.enabled = !inventoryOpen;
-            equipment.enabled = inventoryOpen;
-            backpack.enabled = inventoryOpen;
-            if (containerOpen)
+            if (inventoryOpen)
             {
-                containerOpen = false;
-                container.enabled = false;
+                setUI(false, false);
+            }
+            else
+            {
+                setUI(true, false);
             }
         }
-
-        
-        
     }
 
     IEnumerator clearPickupText()
