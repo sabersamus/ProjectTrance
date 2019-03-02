@@ -31,4 +31,18 @@ public class ItemManager : MonoBehaviour
         return null;
     }
 
+    public static GameItem getGameItemByType(ItemType _type)
+    {
+        foreach(GameItem gameItem in gameItems.Values)
+        {
+            string itemName = gameItem.itemName.ToString().ToLower().Replace("_", " ");
+            string typeName = _type.ToString().ToLower().Replace("_", " ");
+            if (itemName.Equals(typeName))
+            {
+                return gameItem;
+            }
+        }
+        return null;
+    }
+
 }
