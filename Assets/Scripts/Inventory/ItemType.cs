@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 
 [Serializable]
-public enum ItemType : int
+public enum ItemType
 {
     //ORDER IS IMPORTANT
     /// <summary>
@@ -17,7 +17,8 @@ public enum ItemType : int
     SULFUR,
     CHARCOAL,
     CLOTH,
-    GUNPOWDER
-
+    GUNPOWDER,
+    STONE_PICKAXE,
+    STONE_HATCHET
 
 }

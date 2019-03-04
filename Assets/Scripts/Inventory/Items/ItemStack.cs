@@ -9,18 +9,30 @@ using System;
 public class ItemStack
 {
     [SerializeField]
-    public GameItem gameItem;
+    public Item item;
     [SerializeField]
     public int stackSize;
 
 
-    public ItemStack(GameItem _item, int _stackSize)
+    public ItemStack(Item _item, int _stackSize)
     {
-        if (!_item.isStackable || _item is EquipableItem)
+        if (!_item.isStackable || _item is ToolItem)
         {
             _stackSize = 1;
         }
-        gameItem = _item;
+        item = _item;
+        stackSize = _stackSize;
+    }
+
+    public ItemStack(ItemType itemType, int _stackSize)
+    {
+        Item _item = Item.fromType(itemType);
+
+        if (!_item.isStackable || _item is ToolItem)
+        {
+            _stackSize = 1;
+        }
+        item = _item;
         stackSize = _stackSize;
     }
 
@@ -28,7 +40,7 @@ public class ItemStack
     {
         if (_item == null) return false;
         if (_item == this) return true;
-        if (this.gameItem == _item.gameItem) return true;
+        if (this.item == _item.item) return true;
         return false;
     }
 
@@ -40,14 +52,14 @@ public class ItemStack
 
         ItemStack _itemStack = (ItemStack)obj;
 
-        return _itemStack.gameItem == gameItem && _itemStack.stackSize == stackSize;
+        return _itemStack.item == item && _itemStack.stackSize == stackSize;
 
     }
 
     public override int GetHashCode()
     {
         var hashCode = -551140938;
-        hashCode = hashCode * -1521134295 + EqualityComparer<GameItem>.Default.GetHashCode(gameItem);
+        hashCode = hashCode * -1521134295 + EqualityComparer<Item>.Default.GetHashCode(item);
         hashCode = hashCode * -1521134295 + stackSize.GetHashCode();
         return hashCode;
     }

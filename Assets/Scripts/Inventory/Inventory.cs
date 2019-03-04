@@ -12,8 +12,6 @@ public class Inventory
     public int size;
     [SerializeField]
     public int maxSize;
-    //public Dictionary<int, ItemStack> items;
-    [SerializeField]
     public ItemStack[] items;
 
     private IInventoryHolder inventoryHolder;
@@ -55,8 +53,13 @@ public class Inventory
         return count;
     }
 
+    public bool addItem(ItemType itemType, int amount)
+    {
+        //return addItem(new ItemStack(ItemManager.getGameItemByType(itemType), amount));
+        return false;
+    }
 
-    //I believe this method is finished
+
     public bool addItem(ItemStack _itemStack)
     {
         if (maxSize < currentSize() + 1)
@@ -83,15 +86,15 @@ public class Inventory
 
             int _overFlow = 0;
 
-            if (_firstPartialSize + _inputSize > _firstPartial.gameItem.maxStackSize)
+            if (_firstPartialSize + _inputSize > _firstPartial.item.maxStackSize)
             {
-                _overFlow = (_firstPartialSize + _inputSize) - _firstPartial.gameItem.maxStackSize;
+                _overFlow = (_firstPartialSize + _inputSize) - _firstPartial.item.maxStackSize;
             }
 
             //if there is no overflow
             if (_overFlow == 0)
             {
-                ItemStack _fp = new ItemStack(_firstPartial.gameItem, _firstPartialSize + _inputSize);
+                ItemStack _fp = new ItemStack(_firstPartial.item, _firstPartialSize + _inputSize);
                 items[_firstPartialID] = _fp;
                 return true;
             }
@@ -106,7 +109,7 @@ public class Inventory
                  */
 
                 //Step 1
-                items[_firstPartialID] = new ItemStack(_firstPartial.gameItem, _firstPartial.gameItem.maxStackSize);
+                items[_firstPartialID] = new ItemStack(_firstPartial.item, _firstPartial.item.maxStackSize);
 
                 //Step 2
                 int _nextPartialID = firstPartial(_itemStack);
@@ -136,7 +139,7 @@ public class Inventory
                         {
                             //We found an empty slot, so we put the overflow in the empty slot 
                             //and finish up
-                            ItemStack toEmpty = new ItemStack(_itemStack.gameItem, _overFlow);
+                            ItemStack toEmpty = new ItemStack(_itemStack.item, _overFlow);
                             setItem(emptyId, toEmpty);
                             return true;
                         }
@@ -147,7 +150,7 @@ public class Inventory
                     //We do have a next partial stack
                     int _nextPartialSize = itemInSlot(_nextPartialID).stackSize;
                     //We add the overflow to the stacksize of our partial
-                    setItem(_nextPartialID, new ItemStack(_itemStack.gameItem, _nextPartialSize + _overFlow));
+                    setItem(_nextPartialID, new ItemStack(_itemStack.item, _nextPartialSize + _overFlow));
                     return true;
                 }
             }
@@ -198,30 +201,36 @@ public class Inventory
     }
 
     /// <summary>
-    /// Removes <paramref name="amount"/> of <paramref name="itemType"/> from the 
+    /// Removes <paramref name="amount"/> of <paramref name="item"/> from the 
     /// inventory.
     /// </summary>
-    /// <param name="itemType">The type of item to remove</param>
+    /// <param name="item">The type of item to remove</param>
     /// <param name="amount">The amount to remove</param>
-    public bool remove(GameItem itemType, int amount)
+    public bool remove(Item item, int amount)
     {
-        if (itemType == null || amount <= 0)
+        if (item == null || amount <= 0)
         {
             Debug.Log("Illegal arguments");
             return false;
         }
 
-        if (!contains(itemType))
+        if (!contains(item))
         {
-            Debug.Log("This inventory does not contain " + itemType.itemName);
+            Debug.Log("This inventory does not contain " + item.itemName);
+            return false;
+        }
+
+        if(!containsAtleast(item, amount))
+        {
+            Debug.Log("This inventory does not contain at least that much");
             return false;
         }
 
         int overFlow = 0;
 
-        if(amount > itemType.maxStackSize)
+        if(amount > item.maxStackSize)
         {
-            overFlow = amount - itemType.maxStackSize;
+            overFlow = amount - item.maxStackSize;
         }
 
         //We are removing more than a full stack
@@ -232,13 +241,13 @@ public class Inventory
             //then, we set up a loop to remove any next stack
             //until our overflow is 0
 
-            setItem(first(itemType), null);
+            setItem(first(item), null);
 
             while(overFlow < 0)
             {
                 //step 1, get first stack.
                 //step 2, remove items from stack
-                int _first = first(itemType);
+                int _first = first(item);
                 if (_first == -1) break;
 
                 int _firstStackSize = items[_first].stackSize;
@@ -270,7 +279,7 @@ public class Inventory
                         //if we need to remove less than the stack has
 
                         int leftOver = overFlow - _firstStackSize;
-                        setItem(_first, new ItemStack(itemType, leftOver));
+                        setItem(_first, new ItemStack(item, leftOver));
                         overFlow = 0;
                         break;
                     }
@@ -287,7 +296,7 @@ public class Inventory
             {
                 //step 1, get first stack.
                 //step 2, remove items from stack
-                int _first = first(itemType);
+                int _first = first(item);
                 if (_first == -1) break;
 
                 int _firstStackSize = items[_first].stackSize;
@@ -319,7 +328,7 @@ public class Inventory
                         //if we need to remove less than the stack has
 
                         int leftOver = _firstStackSize - amount;
-                        setItem(_first, new ItemStack(itemType, leftOver));
+                        setItem(_first, new ItemStack(item, leftOver));
                         toRemove = 0;
                         break;
                     }
@@ -329,7 +338,7 @@ public class Inventory
         }
     }
 
-    public void removeAll(GameItem itemType)
+    public void removeAll(Item itemType)
     {
 
     }
@@ -357,7 +366,7 @@ public class Inventory
         return false;
     }
 
-    public bool contains(GameItem itemType, int amount)
+    public bool contains(Item itemType, int amount)
     {
         if (isEmpty()) return false;
         if (itemType == null || amount <= 0) return false;
@@ -368,7 +377,7 @@ public class Inventory
         foreach(ItemStack _itemStack in items)
         {
             if (_itemStack == null) continue;
-            if (_itemStack.gameItem == null || _itemStack.gameItem != itemType) continue;
+            if (_itemStack.item == null || _itemStack.item != itemType) continue;
             count += _itemStack.stackSize;
         }
 
@@ -377,7 +386,7 @@ public class Inventory
         return count >= amount;
     }
 
-    public bool contains(GameItem itemType)
+    public bool contains(Item itemType)
     {
         if (isEmpty()) return false;
         if (itemType == null) return false;
@@ -386,7 +395,7 @@ public class Inventory
         foreach(ItemStack item in items)
         {
             if (item == null) continue;
-            if (item.gameItem == itemType)
+            if (item.item == itemType)
             {
                 contains = true;
                 break;
@@ -396,14 +405,14 @@ public class Inventory
         return contains;
     }
 
-    public bool containsAtleast(GameItem item, int amount)
+    public bool containsAtleast(Item item, int amount)
     {
         if (isEmpty()) return false;
         int currentAmount = 0;
         foreach(ItemStack itemStack in items)
         {
             if (itemStack == null) continue;
-            if (itemStack.gameItem != item) continue;
+            if (itemStack.item != item) continue;
             currentAmount += itemStack.stackSize;
         }
 
@@ -450,7 +459,7 @@ public class Inventory
 
             
             if(_itemStack != null && _itemStack.stackSize 
-                < _itemStack.gameItem.maxStackSize && _itemStack.isSimilar(itemStack))
+                < _itemStack.item.maxStackSize && _itemStack.isSimilar(itemStack))
             {
                 return i;
             }
@@ -459,7 +468,7 @@ public class Inventory
         return -1;
     }
 
-    public int firstPartial(GameItem itemType)
+    public int firstPartial(Item itemType)
     {
         if (itemType == null)
         {
@@ -468,11 +477,11 @@ public class Inventory
 
         for (int i = 0; i < items.Length; i++)
         {
-            GameItem _itemType = items[i].gameItem;
+            Item _itemType = items[i].item;
 
 
             if (_itemType != null && items[i].stackSize
-                < _itemType.maxStackSize && items[i].gameItem == itemType)
+                < _itemType.maxStackSize && items[i].item == itemType)
             {
                 return i;
             }
@@ -495,13 +504,13 @@ public class Inventory
         return -1;
     }
 
-    public int firstFull(GameItem itemType)
+    public int firstFull(Item itemType)
     {
         ItemStack[] _items = items;
         if (items.Length == 0) return -1;
         for(int i = 0; i < _items.Length; i++)
         {
-            if(_items[i].gameItem == itemType && _items[i].stackSize == itemType.maxStackSize)
+            if(_items[i].item == itemType && _items[i].stackSize == itemType.maxStackSize)
             {
                 return i;
             }
@@ -511,13 +520,35 @@ public class Inventory
 
     public void setItem(int slot, ItemStack item)
     {
-        if(slot > maxSize || slot < 0)
+        Debug.Log(slot + " " + items.Length);
+        if(slot > items.Length || slot < 0)
         {
             Debug.Log("Invalid slot key");
             return;
         }
         items[slot] = item;
     }
+
+    /*
+    public void setContents(ItemStack[] _items)
+    {
+        //Lets make a copy and set it. 
+        //We dont want to set the reference.
+        clear();
+        items = new ItemStack[items.Length];
+        Debug.Log(_items.Length);
+        int i = 0;
+        foreach(ItemStack itemStack in _items)
+        {
+            if(itemStack == null)
+            {
+                continue;
+            }
+
+            items[i] = itemStack;
+            i++;
+        }
+    }*/
 
     public int first(ItemStack item)
     {
@@ -534,13 +565,13 @@ public class Inventory
         return -1;
     }
 
-    public int first(GameItem itemType)
+    public int first(Item itemType)
     {
         for(int i = 0; i < items.Length; i++)
         {
             if (items[i] == null)
                 continue;
-            if(items[i].gameItem == itemType)
+            if(items[i].item == itemType)
             {
                 return i;
             }
